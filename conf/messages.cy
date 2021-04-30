@@ -22,6 +22,36 @@ agent.utr_error.reason.bullet2                                  = nid ydych chi 
 agent.utr_error.reason.bullet2_link                             = Troi Treth yn Ddigidol ar gyfer Treth Incwm (yn agor tab newydd)
 agent.utr_error.go_back                                         = Ewch yn ôl a nodwch UTR gwahanol
 
+## Agent - Payment Due Page
+    agent.paymentDue.heading                                                 = What you owe
+    agent.paymentDue.no-payments-due                                         = You have no payments due.
+agent.paymentDue.sa-note                                                 = Mae gennych daliadau’n ddyledus o hyd ar gyfer eich blynyddoedd treth Hunanasesiad blaenorol. Er mwyn bwrw golwg dros y taliadau hyn sydd heb eu talu, mae angen i chi fynd i’ch
+agent.paymentDue.sa-link                                                 = cyfrif Hunanasesiad ar-lein blaenorol (yn agor tab newydd)
+agent.paymentDue.outstanding-charges-note                                = Caiff unrhyw daliadau a wnaed eu defnyddio ar gyfer y costau sydd heb eu talu ar gyfer y blynyddoedd treth hyn yn gyntaf ac ni ddangosir hwy yn yma.
+agent.paymentDue.dropdown.info                                           = Beth yw’r mathau o daliadau?
+agent.paymentDue.payment-days-note                                       = Gall gymryd hyd at 7 diwrnod i brosesu taliadau.
+agent.paymentDue.credit-on-account                                       = Os ydych yn gwneud taliad fwy na 30 diwrnod cyn bod taliad yn ddyledus, byddwch yn ei weld fel credyd ar gyfrif.
+    agent.paymentDue.payNow                                                  = Pay now
+    agent.paymentDue.pay-now-aria                                            = Pay now for Tax year {0} to {1}
+agent.paymentDue.pre-mtd-payments                                        = Blwyddyn dreth {0} i {1}: taliadau cyn-Troi Treth yn Ddigidol
+agent.paymentDue.tableHead.due-date                                      = Dyddiad dyledus
+agent.paymentDue.tableHead.payment-type                                  = Math o daliad
+agent.paymentDue.tableHead.amount-due                                    = Swm sy’n ddyledus
+agent.paymentDue.paymentOnAccount1.text                                  = Taliad ar gyfrif 1 o 2
+agent.paymentDue.paymentOnAccount2.text                                  = Taliad ar gyfrif 2 o 2
+agent.paymentDue.balancingCharge.text                                    = Balans sy’n weddill
+    agent.paymentDue.balancingCharge.interest.line1.text                     = Interest on remaining balance
+    agent.paymentDue.balancingCharge.interest.line2.text                     = From {0} to {1}
+agent.paymentDue.remaining-balance.heading                               = Balans sy’n weddill
+    agent.paymentDue.remaining-balance.line1                                 = The remaining balance is the tax you still need to pay for a tax year.
+agent.paymentDue.payment-on-account.heading                              = Taliad ar gyfrif
+agent.paymentDue.payment-on-account.line1                                = Mae hwn yn daliad tuag at y bil treth ar gyfer y flwyddyn nesaf. Mae swm pob taliad yn hanner eich bil treth ar gyfer y flwyddyn flaenorol.
+agent.paymentDue.over-due-payments                                       = Taliadau sy’n hwyr
+agent.paymentDue.over-due                                                = YN HWYR
+agent.paymentDue.future-payments                                         = Taliadau yn y dyfodol
+agent.paymentDue.due-in-thirty-days-payments                             = Yn ddyledus cyn pen 30 diwrnod
+agent.paymentDue.payment-type.taxYear                                    = Blwyddyn dreth {0} i {1}
+
 ## BTA Links ##
 bta.home                                                        = Treth Busnes – Hafan
 bta.messages                                                    = Negeseuon
