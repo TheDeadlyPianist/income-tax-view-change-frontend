@@ -15,9 +15,10 @@
 *@
 
 @import implicits.ImplicitCurrencyFormatter.CurrencyFormatter
-@import models.financialDetails.PaymentsWithChargeType
 @import implicits.ImplicitDateFormatterImpl
 @import models.financialDetails.DocumentDetail
+@import models.financialDetails.DunningLockForCharge
+@import models.financialDetails.PaymentsWithChargeType
 @import views.html.helpers.injected.BackLink
 @import views.html.templates.MainTemplate
 
@@ -29,13 +30,33 @@
     backLink: BackLink,
     implicitDateFormatter: ImplicitDateFormatterImpl
 )
-@(documentDetail: DocumentDetail, dueDate: Option[LocalDate], backUrl: String, chargeHistory: List[ChargeHistoryModel], paymentAllocations: List[PaymentsWithChargeType], chargeHistoryEnabled: Boolean, paymentAllocationEnabled: Boolean, latePaymentInterestCharge: Boolean)(implicit messages: Messages)
+@(documentDetail: DocumentDetail, dueDate: Option[LocalDate], backUrl: String,
+    chargeHistory: List[ChargeHistoryModel], paymentAllocations: List[PaymentsWithChargeType], dunningLocks: List[DunningLockForCharge],
+    chargeHistoryEnabled: Boolean, paymentAllocationEnabled: Boolean, latePaymentInterestCharge: Boolean)(implicit messages: Messages)
 
 @import implicitDateFormatter.{longDate, toTaxYearEndDate, toTaxYearStartDate}
+
+@hasDunningLocks = @{ dunningLocks.nonEmpty }
 
 @mainTemplate(title = messages(if (latePaymentInterestCharge) s"chargeSummary.lpi.${documentDetail.getChargeTypeKey}" else s"chargeSummary.${documentDetail.getChargeTypeKey}"),bodyClasses = None, scriptElem = None) {
 
     @backLink(backUrl)
+
+    @if(hasDunningLocks) {
+        <div id="dunningLocksBanner" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Important
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                    <a class="govuk-notification-banner__link" href="https://www.gov.uk/tax-appeals/review-of-a-tax-or-penalty-decision" target="_blank">Your tax decision is being reviewed (opens in new tab)</a>.
+                    You still need to pay the total of @{documentDetail.remainingToPay.toCurrency} as you may be charged interest if not paid by @{dueDate.get.toLongDate}.
+                </p>
+            </div>
+        </div>
+    }
 
     <h1 class="heading-xlarge">
         <span class="heading-secondary">@messages("paymentDue.tax-year", toTaxYearStartDate((documentDetail.taxYear.toInt - 1).toString).toLongDate, toTaxYearEndDate(documentDetail.taxYear).toLongDate)</span>

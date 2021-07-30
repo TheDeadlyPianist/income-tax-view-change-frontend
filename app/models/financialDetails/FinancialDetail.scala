@@ -34,9 +34,12 @@ case class FinancialDetail(taxYear: String,
 
   lazy val dunningLockExists: Boolean = dunningLocks.nonEmpty
 
-  lazy val dunningLocks: Seq[SubItem] = {
-    items.fold(Seq.empty[SubItem]) { subItems =>
-      subItems.filter(_.dunningLock.contains("Stand over order"))
+  lazy val dunningLocks: Seq[DunningLockForCharge] = {
+    items.fold(Seq.empty[DunningLockForCharge]) { subItems =>
+      subItems.collect {
+        case item if item.dunningLock.contains("Stand over order") =>
+          DunningLockForCharge(item, mainType = mainType, chargeType = chargeType)
+      }
     }
   }
 

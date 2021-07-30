@@ -49,7 +49,9 @@ class FinancialDetailSpec extends UnitSpec {
 
       "getting Dunning Locks" should {
         "return all sub items with supported Dunning Locks" in {
-          financialDetailWithAllLocks.dunningLocks shouldBe Seq(supportedLock)
+          financialDetailWithAllLocks.dunningLocks shouldBe List(
+            DunningLockForCharge(supportedLock, financialDetailWithAllLocks.mainType, financialDetailWithAllLocks.chargeType)
+          )
         }
 
         "return empty list" when {

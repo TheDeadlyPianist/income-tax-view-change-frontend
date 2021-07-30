@@ -18,9 +18,10 @@ package views
 
 import assets.FinancialDetailsTestConstants._
 import models.chargeHistory.ChargeHistoryModel
-import models.financialDetails.{DocumentDetail, Payment, PaymentsWithChargeType}
+import models.financialDetails.{DocumentDetail, DunningLockForCharge, Payment, PaymentsWithChargeType, SubItem}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import org.scalatest.Assertion
 import play.twirl.api.Html
 import testUtils.ViewSpec
@@ -28,18 +29,19 @@ import views.html.ChargeSummary
 
 import java.time.LocalDate
 
-class ChargeSummarySpec extends ViewSpec {
+class ChargeSummaryViewSpec extends ViewSpec {
 
   class Setup(documentDetail: DocumentDetail,
               dueDate: Option[LocalDate] = Some(LocalDate.of(2019, 5, 15)),
               chargeHistory: List[ChargeHistoryModel] = List(),
               paymentAllocations: List[PaymentsWithChargeType] = List(),
+              dunningLocks: List[DunningLockForCharge] = List(),
               chargeHistoryEnabled: Boolean = true,
               paymentAllocationEnabled: Boolean = false,
               latePaymentInterestCharge: Boolean = false) {
 		val chargeSummary: ChargeSummary = app.injector.instanceOf[ChargeSummary]
     val view: Html = chargeSummary(documentDetail, dueDate, "testBackURL",
-    chargeHistory, paymentAllocations, chargeHistoryEnabled, paymentAllocationEnabled, latePaymentInterestCharge)
+    chargeHistory, paymentAllocations, dunningLocks, chargeHistoryEnabled, paymentAllocationEnabled, latePaymentInterestCharge)
     val document: Document = Jsoup.parse(view.toString())
 
     def verifyPaymentHistoryContent(rows: String*): Assertion = {
@@ -57,7 +59,6 @@ class ChargeSummarySpec extends ViewSpec {
 		def poaInterestHeading(year: Int, number: Int) = s"Tax year 6 April ${year - 1} to 5 April $year Late payment interest on payment on account $number of 2"
 		def balancingChargeHeading(year: Int) =  s"Tax year 6 April ${year - 1} to 5 April $year Remaining balance"
 		def balancingChargeInterestHeading(year: Int) =  s"Tax year 6 April ${year - 1} to 5 April $year Late payment interest on remaining balance"
-		val paidToDate = "Paid to date"
 		val chargeHistoryHeading = "Payment history"
 		val historyRowPOA1Created = "29 Mar 2018 Payment on account 1 of 2 created £1,400.00"
 		def paymentOnAccountCreated(number: Int) = s"Payment on account $number of 2 created"
@@ -68,10 +69,16 @@ class ChargeSummarySpec extends ViewSpec {
 		val balancingChargeAmended = "Remaining balance reduced due to amended return"
 		def paymentOnAccountRequest(number: Int) = s"Payment on account $number of 2 reduced by taxpayer request"
 		val balancingChargeRequest = "Remaining balance reduced by taxpayer request"
+		val dunningLockBannerHeader = "Important"
+		val dunningLockBannerLink = "Your tax decision is being reviewed (opens in new tab)"
+		def dunningLockBannerText(formattedAmount: String, date: String) =
+      s"$dunningLockBannerLink. You still need to pay the total of $formattedAmount as you may be charged interest if not paid by $date."
 	}
 
 	val amendedChargeHistoryModel: ChargeHistoryModel = ChargeHistoryModel("", "", "", "", 1500, LocalDate.of(2018, 7, 6), "amended return")
 	val customerRequestChargeHistoryModel: ChargeHistoryModel = ChargeHistoryModel("", "", "", "", 1500, LocalDate.of(2018, 7, 6), "Customer Request")
+	val dunningLocks = List(DunningLockForCharge(item = testValidFinancialDetailsModel.financialDetails.head.items.get.head,
+		mainType = Some("SA Payment on Account 1"), chargeType = Some("NIC4 Wales")))
 
 	"The charge summary view" should {
 
@@ -150,6 +157,49 @@ class ChargeSummarySpec extends ViewSpec {
 
 		"not have a payment link when there is an outstanding amount of 0" in new Setup(documentDetailModel(outstandingAmount = Some(0))) {
 			document.select("div#payment-link-2018").text() shouldBe ""
+		}
+
+		"display Dunning lock content when there are dunning locks on the charge (not a Late Payment Interest charge)" which {
+
+      "shows a notification banner" which {
+        s"has the heading ${Messages.dunningLockBannerHeader}" in new Setup(documentDetailModel(), dunningLocks = dunningLocks) {
+          document.selectById("dunningLocksBanner")
+            .select(Selectors.h2).text() shouldBe Messages.dunningLockBannerHeader
+        }
+
+        "has the link for Payment under review which opens in new tab" in new Setup(documentDetailModel(), dunningLocks = dunningLocks) {
+          val link: Elements = document.selectById("dunningLocksBanner")
+            .select(Selectors.link)
+
+          link.text() shouldBe Messages.dunningLockBannerLink
+          link.attr("href") shouldBe "https://www.gov.uk/tax-appeals/review-of-a-tax-or-penalty-decision"
+          link.attr("target") shouldBe "_blank"
+        }
+
+        "shows remaining amount and a due date" which {
+          "display a remaining amount" in new Setup(documentDetailModel(
+            outstandingAmount = Some(1600)), dunningLocks = dunningLocks) {
+
+            document.selectById("dunningLocksBanner")
+              .selectNth(Selectors.div, 2).text() shouldBe Messages.dunningLockBannerText("£1,600.00", "15 May 2019")
+          }
+
+          "display 0 if a cleared amount equal to the original amount is present but an outstanding amount is not" in new Setup(
+            documentDetailModel(outstandingAmount = Some(0)), dunningLocks = dunningLocks) {
+
+            document.selectById("dunningLocksBanner")
+              .selectNth(Selectors.div, 2).text() shouldBe Messages.dunningLockBannerText("£0.00", "15 May 2019")
+          }
+
+          "display the original amount if no cleared or outstanding amount is present" in new Setup(
+            documentDetailModel(outstandingAmount = None, originalAmount = Some(1700)), dunningLocks = dunningLocks) {
+
+            document.selectById("dunningLocksBanner")
+              .selectNth(Selectors.div, 2).text() shouldBe Messages.dunningLockBannerText("£1,700.00", "15 May 2019")
+          }
+        }
+      }
+
 		}
 
 		"display a charge history" in new Setup(documentDetailModel(outstandingAmount = Some(0))) {
