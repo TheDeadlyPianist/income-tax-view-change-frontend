@@ -47,12 +47,12 @@
         <br>
         <div id="dunningLocksBanner" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
             <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title">Important</h2>
+                <h2 class="govuk-notification-banner__title">@messages("chargeSummary.dunning.locks.banner.title")</h2>
             </div>
             <div class="govuk-notification-banner__content">
                 <p class="govuk-notification-banner__heading">
-                    <a class="govuk-notification-banner__link" href="https://www.gov.uk/tax-appeals/review-of-a-tax-or-penalty-decision" target="_blank">Your tax decision is being reviewed (opens in new tab)</a>.
-                    You still need to pay the total of @{documentDetail.remainingToPay.toCurrency} as you may be charged interest if not paid by @{dueDate.get.toLongDate}.
+                    <a class="govuk-notification-banner__link" href="https://www.gov.uk/tax-appeals/review-of-a-tax-or-penalty-decision" target="_blank">@messages("chargeSummary.dunning.locks.banner.linkText")</a>.
+                    @messages("chargeSummary.dunning.locks.banner.note", documentDetail.remainingToPay.toCurrencyString, dueDate.get.toLongDate)
                 </p>
             </div>
         </div>
